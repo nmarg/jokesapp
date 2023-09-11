@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using jokesapp.Data;
 using jokesapp.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace jokesapp.Controllers
 {
@@ -46,6 +47,7 @@ namespace jokesapp.Controllers
         }
 
         // GET: Jokes/Create
+        [Authorize]
         public IActionResult Create()
         {
             return View();
@@ -154,7 +156,19 @@ namespace jokesapp.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        
+        // GET: Jokes/ShowSearchForm
+        public async Task<IActionResult> ShowSearchForm()
+        {
+            return View();
+        }
 
+        // POST: Jokes/ShowSearchResults
+        public async Task<IActionResult> ShowSearchResults(String searchPhrase)
+        {
+            return View("Index", await _context.Joke.Where( j => j.JokeQuestion.Contains(searchPhrase)).ToListAsync());
+        }
+        
         private bool JokeExists(int id)
         {
           return (_context.Joke?.Any(e => e.Id == id)).GetValueOrDefault();
